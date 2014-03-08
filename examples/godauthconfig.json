@@ -1,0 +1,16 @@
+{
+  "cookie_age_max": 28800,
+  "cookie_future_max": 300,
+  "reload_interval": 10,
+  "permmap_file": "/etc/nginx/godauth/permmap.json",
+  "CookieName": "mygodauthcookie",
+  "CookieSecret": "verysecretcookiesecret",
+  "logfile": "/var/log/godauth/auth.log",
+  "AuthHeader": "Basic dGVzdHVzZXI6dGVzdHBhc3N3b3Jk",
+  "FailCookieOld":     "https://myauthservice.com/godauth/",
+  "FailCookieFuture":  "https://myauthservice.com/godauth/?fail=future",
+  "FailCookieInvalid": "https://myauthservice.com/godauth/?fail=invalid",
+  "FailNotOnList":     "https://myauthservice.com/godauth/?fail=notonlist",
+  "FailNeedsAuth":     "https://myauthservice.com/godauth/",
+  "FailConfig":        "https://myauthservice.com/godauth/?fail=unknownconfig"
+}

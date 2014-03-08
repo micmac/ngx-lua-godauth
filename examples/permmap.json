@@ -1,0 +1,14 @@
+[
+    {
+        "url": "^localhost/server-status",
+        "who": "all"
+    },
+    {
+        "url": "localhost/godauthed$",
+        "who": "authed"
+    },
+    {
+        "url": ".*",
+        "who": "none"
+    }
+]
