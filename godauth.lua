@@ -146,9 +146,11 @@ end
 -- permissions
 
 function parse_rules(rules, url)
-  for _, rule in pairs(rules) do
-    if string.match(url, rule.url) then
-      return rule.who
+  if rules then
+    for _, rule in pairs(rules) do
+      if string.match(url, rule.url) then
+        return rule.who
+      end
     end
   end
   return "none"
@@ -234,7 +236,7 @@ cookie_secret = config:get("CookieSecret") or "nottherightsecret"
 ---------
 -- determine if we need to perform access control
 
-local allow = parse_rules(permmap._data, myurl)
+local allow = parse_rules(permmap:get("rules"), myurl)
 
 xlog("Allowed: " .. allow)
 

@@ -1,4 +1,5 @@
-[
+{
+  "rules": [
     {
         "url": "^localhost/server-status",
         "who": "all"
@@ -11,4 +12,5 @@
         "url": ".*",
         "who": "none"
     }
-]
+  ]
+}
