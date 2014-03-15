@@ -49,7 +49,7 @@ function _P:load(json_file)
   local cf = io.open(json_file)
   self._data.timestamp = now()
   if not cf then
-    return "Config file open failed"
+    return "Config file open failed for " .. json_file
   end
   
   local cj = cf:read("*a")
