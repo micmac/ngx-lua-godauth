@@ -214,7 +214,7 @@ local cookie = ngx.var[cookie_name]
 local ua = ngx.var.http_user_agent
 local remote_ip = ngx.var.remote_addr
 local myurl = ngx.var.host .. ngx.var.uri .. (ngx.var.args and ("?" .. ngx.var.args) or "")
-xlog(string.format("Handling auth from %s to %s with cookie %s", remote_ip, myurl, cookie))
+xlog(string.format("Handling auth from %s to %s with cookie %s", remote_ip, myurl, cookie or "nil"))
 
 ---------
 -- 0) handle jenkins whitelist
