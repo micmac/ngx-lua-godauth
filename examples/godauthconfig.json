@@ -12,5 +12,12 @@
   "FailCookieInvalid": "https://myauthservice.com/godauth/?fail=invalid",
   "FailNotOnList":     "https://myauthservice.com/godauth/?fail=notonlist",
   "FailNeedsAuth":     "https://myauthservice.com/godauth/",
-  "FailConfig":        "https://myauthservice.com/godauth/?fail=unknownconfig"
+  "FailConfig":        "https://myauthservice.com/godauth/?fail=unknownconfig",
+  "whitelist_ipranges":  [
+    "127.0.0.1"
+  ],
+  "whitelist_urls": [
+    "localhost/test",
+    "^localhost/test[0-9]",
+  ]
 }

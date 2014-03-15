@@ -51,7 +51,6 @@ function create_ipranges(iplist)
     mask = 2^(32-mask)
     local ipmin = ipint - ipint % mask
     local ipmax = ipmin + mask - 1
-    xlog(string.format("%s, %08x, %08x", ip, ipmin or -1, ipmax or -1))
     table.insert(ranges, {[0]=ipmin, [1]=ipmax})
   end
   return ranges
@@ -63,16 +62,14 @@ function match_ipranges(ip, ranges)
   for i = 1,4 do
     ipint = ipint * 2^8 + m()
   end
-  xlog(string.format("%08x", ipint))
   for i, range in pairs(ranges) do
-    xlog(string.format("%d, %08x, %08x", i, range[0] or -1, range[1] or -1))
     if ipint >= range[0] and ipint <= range[1] then
       return true
     end
   end
   return false
 end
-  
+
 
 
 -- godauth part
@@ -84,9 +81,8 @@ function validate_cookie(cookie, ua, cookie_secret)
   if not cookie then
     return 'COOKIE_MISSING'
   end
-  
+
   -- sanitize user agent (separate function candidate)
-  xlog("Got user agent: " .. (ua or "nil"))
   if ua then
     if string.match(ua, "AppleWebKit") then
       ua = "StupidAppleWebkitHacksGRRR"
@@ -95,8 +91,7 @@ function validate_cookie(cookie, ua, cookie_secret)
   else
     ua = "missing_useragent"
   end
-  xlog("Using user agent: " .. (ua or "nil"))
-    
+
   local cookie_array = {}
   for i in string.gmatch(cookie, "[^-]+") do
     table.insert(cookie_array,i)
@@ -108,7 +103,7 @@ function validate_cookie(cookie, ua, cookie_secret)
 
   local raw = table.concat({user, roles, ts, ua}, "-")
   local check_hmac = sha1_hex(cookie_secret .. raw)
-  
+
   local status = 'COOKIE_INVALID'
   if cookie_hmac == check_hmac then
     local cookie_age = now() - ts
@@ -116,7 +111,7 @@ function validate_cookie(cookie, ua, cookie_secret)
       status = 'COOKIE_OLD'
     elseif cookie_age < -config:get("cookie_future_max") then
       status = 'COOKIE_FUTURE'
-    else  
+    else
       status = 'COOKIE_OK'
     end
   else
@@ -156,23 +151,23 @@ function parse_rules(rules, url)
   return "none"
 end
 
-function jenkins_whitelist(remote_ip, url)
-  local whitelist_regexp = create_ipranges(
-     {"108.171.174.178/32", "192.30.252.0/22", "198.101.244.171", "204.232.175.64/27", "207.97.227.253/32", "54.234.141.4", "54.225.62.134", "50.57.128.197/32", "50.57.231.61/32"}
-  );
+function whitelist(remote_ip, url)
+  local urls = config:get("whitelist_urls")
+  local ipranges = config:get("whitelist_ipranges")
+  local whitelist_regexp = create_ipranges(ipranges);
 
   if (match_ipranges(remote_ip, whitelist_regexp)) then
-      xlog("(webhook whitelist address): " .. remote_ip)
-      if (url == "jenkins.prezi.com/github-webhook/" or
-          url == "jenkins.prezi.com:443/github-webhook/" or
-          url == "missioncontrol.prezi.com/jenkins_notification_endpoint/" or
-          url == "missioncontrol.prezi.com/github_notification_endpoint/" or
-          url == "missioncontrol.prezi.com:443/github_notification_endpoint/" or
-          string.match(url, "jenkins.prezi.com/jnlpJars") or
-          url == "jenkins.prezi.com/tcpSlaveAgentListener/") then
-          xlog("whitelist auth: OK " .. url)
+    for _, pattern in ipairs(urls) do
+      if string.sub(pattern,1,1) == "^" then
+        if string.match(url, string.sub(pattern,2)) then
           return true
+        end
+      else
+        if url == pattern then
+          return true
+        end
       end
+    end
   end
   return false;
 
@@ -219,11 +214,11 @@ local myurl = ngx.var.host .. ngx.var.uri .. (ngx.var.args and ("?" .. ngx.var.a
 xlog(string.format("Handling auth from %s to %s with cookie %s", remote_ip, myurl, cookie or "nil"))
 
 ---------
--- 0) handle jenkins whitelist
+-- 0) handle whitelist
 
-local jw = jenkins_whitelist(remote_ip, myurl)
-xlog("Jenkins whitelist: " .. (jw and "yes" or "no"))
-if jw then
+local wl = whitelist(remote_ip, myurl)
+xlog("Whitelist: " .. (wl and "yes" or "no"))
+if wl then
   ngx.exit(ngx.OK)
 end
 
@@ -306,11 +301,11 @@ ngx.headers['GodAuth-Roles'] = cookie_roles
 
  ----------
  -- 5) exit now for authed
- 
+
  if allow == 'authed' then
    return ngx.exit(ngx.OK)
  end
- 
+
  ----------
  -- 6) check usernames/roles
 
@@ -341,5 +336,3 @@ if not found_allow then
 else
   return ngx.exit(ngx.OK)
 end
-
-  
