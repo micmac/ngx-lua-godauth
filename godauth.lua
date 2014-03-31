@@ -1,13 +1,14 @@
 local json = require("cjson")
 local configobject = require("configobject")
+
 if not ngx.var.godauthconfigfile then
-  ngx.var.godauthconfigfile = "/home/endre/n/godauthconfig.json"
+  error("Set $godauthconfigfile in your nginx config!")
 end
 
 local config = configobject.new("config")
 local permmap = configobject.new("permmap")
 
--- utility functions
+-- utility functions, let's try to keep nginx dependencies here
 
 function tohex(str)
     return (str:gsub('.', function (c)
@@ -69,7 +70,6 @@ function match_ipranges(ip, ranges)
   end
   return false
 end
-
 
 
 -- godauth part
